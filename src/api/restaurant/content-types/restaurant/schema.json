@@ -13,7 +13,7 @@
   "pluginOptions": {},
   "attributes": {
     "name": {
-      "type": "text",
+      "type": "string",
       "required": true
     },
     "description": {
