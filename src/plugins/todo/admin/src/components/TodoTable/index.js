@@ -1,23 +1,52 @@
-import { Avatar, BaseCheckbox, Box, Flex, IconButton, Table, Tbody, Td, Th, Thead, Tr, Typography, VisuallyHidden } from "@strapi/design-system";
+import {
+  Avatar,
+  BaseCheckbox,
+  Box,
+  Flex,
+  IconButton,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  Typography,
+  VisuallyHidden,
+} from "@strapi/design-system";
 import { Pencil, Trash } from "@strapi/icons";
 import React from "react";
+import todoRequest from "../../api/todo";
 
-const TodoTable = () => {
+const TodoTable = ({ todoData, setTodoData }) => {
   const ROW_COUNT = 6;
   const COL_COUNT = 10;
-  const entry = {
-    cover: "https://avatars.githubusercontent.com/u/3874873?v=4",
-    description: "Chez Léon is a human sized Parisian",
-    category: "French cuisine",
-    contact: "Leon Lafrite",
+  console.log(todoData, "table");
+
+  const handleToggle = (id, index) => {
+    todoRequest.toggele(id);
+    const newTodoList = [...todoData];
+    console.log(id, index);
+    newTodoList[index] = {
+      ...newTodoList[index],
+      isDone: !todoData[index].isDone,
+    };
+
+    setTodoData(newTodoList);
+
+    console.log(newTodoList, todoData);
   };
-  const entries = [];
-  for (let i = 0; i < 5; i++) {
-    entries.push({
-      ...entry,
-      id: i,
-    });
-  }
+
+  const handleDelete = async (id, index) => {
+    const result = await todoRequest.delete(id);
+    if (result.type) {
+      const newTodoList = [...todoData];
+      setTodoData([
+        ...newTodoList.slice(0, index),
+        ...newTodoList.slice(index + 1),
+      ]);
+    }
+  };
+
   return (
     <Box padding={8} background="neutral100">
       <Table colCount={COL_COUNT} rowCount={ROW_COUNT}>
@@ -28,7 +57,7 @@ const TodoTable = () => {
             </Th>
             <Th>
               <Typography variant="sigma">ID</Typography>
-            </Th>          
+            </Th>
             <Th>
               <Typography variant="sigma">Description</Typography>
             </Th>
@@ -38,19 +67,21 @@ const TodoTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {entries.map((entry) => (
+          {todoData.map((entry, index) => (
             <Tr key={entry.id}>
               <Td>
-                <BaseCheckbox aria-label={`Select ${entry.contact}`} />
+                <BaseCheckbox
+                  aria-label={`Select ${entry.contact}`}
+                  value={entry.isDone}
+                  onClick={() => handleToggle(entry.id, index)}
+                />
               </Td>
               <Td>
                 <Typography textColor="neutral800">{entry.id}</Typography>
               </Td>
-            
+
               <Td>
-                <Typography textColor="neutral800">
-                  {entry.description}
-                </Typography>
+                <Typography textColor="neutral800">{entry.name}</Typography>
               </Td>
               <Td>
                 <Flex>
@@ -62,7 +93,7 @@ const TodoTable = () => {
                   />
                   <Box paddingLeft={1}>
                     <IconButton
-                      onClick={() => console.log("delete")}
+                      onClick={async () => await handleDelete(entry.id, index)}
                       label="Delete"
                       noBorder
                       icon={<Trash />}

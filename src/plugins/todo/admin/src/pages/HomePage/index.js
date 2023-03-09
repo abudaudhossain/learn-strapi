@@ -4,7 +4,7 @@
  *
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import PropTypes from 'prop-types';
 import pluginId from "../../pluginId";
 
@@ -17,6 +17,7 @@ import {
   HeaderLayout,
   Layout,
   Link,
+  Loader,
   SubNav,
   SubNavHeader,
   SubNavLink,
@@ -29,15 +30,31 @@ import { ArrowLeft, Cross, Pencil, Plus } from "@strapi/icons";
 import { Illo } from "../../components/Illo";
 import TodeModal from "../../components/TodoModal";
 import TodoTable from "../../components/TodoTable";
+import todoRequest from "../../api/todo";
 // import { Link } from 'react-router-dom';
 
 const HomePage = () => {
-  const [todoData, setTodoData] = useState([1]);
+  const [todoData, setTodoData] = useState([]);
   const [showModle, setShowModle] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handelShowModle = (value) => {
     setShowModle(!value);
   };
+  const fetchData = async () => {
+    if (isLoading === false) setIsLoading(true);
+    const data = await todoRequest.getAllTodos();
+    setTodoData(data.todos);
+    setIsLoading(false);
+  };
+
+  useEffect(async () => {
+    await fetchData();
+  }, []);
+  if (isLoading) return <Loader>Loading content...</Loader>;
+
+  console.log(todoData, "home");
+
   return (
     <Layout>
       <BaseHeaderLayout
@@ -60,7 +77,13 @@ const HomePage = () => {
           </Button>
         }
         title="Todo Plugin"
-        subtitle={`All Your todos in one place.  ${todoData.length < 1 ? "Not fund" :   todoData.length === 1 ? + todoData.length + " todo found" : todoData.length +" todos found"}.`}
+        subtitle={`All Your todos in one place.  ${
+          todoData.length < 1
+            ? "Not fund"
+            : todoData.length === 1
+            ? +todoData.length + " todo found"
+            : todoData.length + " todos found"
+        }.`}
         as="h2"
       />
 
@@ -82,10 +105,15 @@ const HomePage = () => {
             />
           </Box>
         ) : (
-          <TodoTable />
+          <TodoTable todoData={todoData} setTodoData={setTodoData} />
         )}
         {showModle && (
-          <TodeModal handelShowModle={handelShowModle} showModle={showModle} />
+          <TodeModal
+            handelShowModle={handelShowModle}
+            showModle={showModle}
+            setTodoData={setTodoData}
+            todoData={todoData}
+          />
         )}
       </ContentLayout>
     </Layout>

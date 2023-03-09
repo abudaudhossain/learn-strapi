@@ -13,10 +13,10 @@ import todoRequest from "../../api/todo";
 const TodeModal = ({ handelShowModle, showModle, setTodoData, todoData }) => {
   const [content, setContent] = useState("");
 
-  const handleAddTodo = async (todo) => {
+  const handleUpdateTodo = async (todo) => {
     console.log(todo);
-   const t = await todoRequest.createTodo({name:todo});
-   setTodoData([...todoData, t.todo])
+    // const t = await todoRequest.update({ name: todo });
+    // setTodoData([...todoData, t.todo]);
     setContent("");
     handelShowModle(showModle);
   };
@@ -41,7 +41,7 @@ const TodeModal = ({ handelShowModle, showModle, setTodoData, todoData }) => {
         }
         endActions={
           <>
-            <Button onClick={() => handleAddTodo(content)}>Finish</Button>
+            <Button onClick={() => handleUpdateTodo(content)}>Update</Button>
           </>
         }
       />
